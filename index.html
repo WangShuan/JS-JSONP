@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>JSONP</title>
+    <style>
+        h3 {
+            color: red;
+        }
+
+        p {
+            width: 400px;
+            height: 80px;
+            overflow: scroll;
+            background-color: rgb(224, 222, 222);
+            padding: 10px;
+        }
+
+        #search {
+            width: 150px;
+            margin: 0;
+            padding: 0;
+        }
+
+        #text {
+            width: 150px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            border: 1px solid blue;
+            margin: 0;
+            padding: 0;
+        }
+
+        #search>ul {
+            width: 150px;
+            list-style: none;
+            border: 1px solid gray;
+            border-top: none;
+            margin: 0;
+            padding: 0;
+            display: none;
+        }
+
+        #search>ul>li {
+            width: 140px;
+            height: 20px;
+            line-height: 20px;
+            margin: 0;
+            padding: 0;
+            padding-left: 10px;
+            overflow: hidden;
+        }
+
+        #search>ul>li:hover {
+            background-color: rosybrown;
+            cursor: pointer;
+        }
+
+        li>a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>跨域請求問題</h3>
+    在不同域當中會有安全限制 導致無法獲取不同域的網址內容<br>
+    但是在 script 標籤裡面是沒有跨域請求限制的<br>
+    所以我們可以通過 script 標籤獲取數據<br><br>
+
+    <script src="./hello.txt"></script>
+    <script>
+        console.log(str)
+    </script>
+
+    <h3>JSONP 使用方式</h3>
+    先定義函數 再獲取數據<br><br>
+    <input type="button" value="點我獲取數據渲染頁面" id="bt1">
+    <script>
+        function showNews(data) {
+            var oUl = document.createElement('ul')
+            for (i = 0; i < data.length; i++) {
+                var oLi = document.createElement('li')
+                oLi.innerText = data[i]
+                oUl.appendChild(oLi)
+            }
+            document.body.appendChild(oUl)
+        }
+    </script>
+    <script>
+        document.getElementById('bt1').onclick = function () {
+            var oScript = document.createElement('script')
+            oScript.src = 'http://bluezyz.com/study/01-data.php'
+            document.head.appendChild(oScript)
+        }
+    </script>
+
+    <h3>JSONP 實際操作</h3>
+    把百度搜索關鍵字的連結拿來實際操作<br>
+    第一個參數是 wd 查找的關鍵字<br>
+    第二個參數是 cb 執行的回調函數<br><br>
+    <div id="search">
+        <input type="text" id="text" placeholder="请输入要查找的内容">
+        <ul id="list">
+            <li>HTML</li>
+            <li>HTML</li>
+            <li>HTML</li>
+        </ul>
+    </div>
+
+    <script>
+        function setList(data) { // 獲取數據後執行的函數
+            var oList = document.getElementById('list')
+            oList.innerHTML = ''
+            for (i = 0; i < data.s.length; i++) {
+                var oLi = document.createElement('li')
+                var oA = document.createElement('a')
+                oA.href = 'https://www.baidu.com/s?wd=' + data.s[i]
+                oA.innerText = data.s[i]
+                oLi.appendChild(oA)
+                oList.appendChild(oLi)
+            }
+        }
+    </script>
+
+    <script>
+        var oText = document.getElementById('text')
+        var oList = document.getElementById('list')
+
+        // https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su 是百度的關鍵字資料庫
+        // 當鍵盤按下後建立 script 標籤 存放百度關鍵字的數據
+        oText.onkeyup = function () {
+            if (this.value.length) {
+                var oScript = document.createElement('script')
+                oScript.src = 'https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?wd=' + this.value +
+                    '&cb=setList'
+                document.head.appendChild(oScript)
+
+                // 讓列表顯示
+                oList.style.display = 'block'
+            } else {
+                oList.style.display = 'none'
+            }
+        }
+    </script>
+
+    <h3>cookie 用於存儲數據</h3>
+    點擊後看 console.log() <br><br>
+    <input type="button" value="存儲數據" id="btA">
+    <input type="button" value="獲取數據" id="btB">
+
+    <script>
+        btA.onclick = function () {
+            // 存儲數據是以 key-value 的形式
+            document.cookie = 'name=John'
+            document.cookie = 'id=1007'
+            console.log('已存。')
+        }
+
+        btB.onclick = function () {
+            // 獲取到的是整個 cookie 的字符串 且數據之間以'分號加空格'做間隔
+            console.log(document.cookie)
+        }
+    </script>
+
+    <h3>cookie 存儲時間</h3>
+    正常情況下 cookie 的數據在結束瀏覽器後才會消失<br>
+    但是我們可以手動設定過期時間<br><br>
+    <input type="button" value="存儲數據" id="btC">
+    <input type="button" value="獲取數據" id="btD">
+    <input type="button" value="刪除數據" id="btE">
+
+    <script>
+        btC.onclick = function () {
+            document.cookie = 'name=John'
+            document.cookie = 'id=1007'
+            
+            // 獲取現在時間 然後設定時間為三秒後
+            var time = new Date()
+            time.setSeconds(time.getSeconds() + 3)
+            // 添加一個數據 並給它加上過期時間為三秒後
+            // expires 為過期時間 裡面必須傳入字符串 我們用 toUTCString 把時間轉為字符串
+            document.cookie = 'password=8723;expires=' + time.toUTCString()
+
+            console.log('已存。')
+        }
+
+        btD.onclick = function () {
+            // 現在存儲數據後三秒內會看到三條數據 三秒後則只看到兩條
+            console.log(document.cookie)
+        }
+
+        btE.onclick=function(){
+            // 獲取現在時間 然後設定時間為前一秒
+            var time = new Date()
+            time.setSeconds(time.getSeconds() - 1)
+            // 設置要刪的那個數據過期時間為前一秒 
+            // 即數據已失效 就獲取不到 name 了 已被刪
+            document.cookie = 'name=;expires=' + time.toUTCString()
+        }
+    </script>
+</body>
+
+</html>
